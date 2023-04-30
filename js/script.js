@@ -90,6 +90,7 @@ const resultNorm = () => {
   }
 }*/
 
+
 const resultNorm = () => {
   if (isAllInputsFilled()) {
     const maintainingWeightFormula = maleRadio.checked ? manMaintainingWeightFormula() : womanMaintainingWeightFormula();
