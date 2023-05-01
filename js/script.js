@@ -12,8 +12,6 @@ const formInputFields = [...formPrameters.querySelectorAll('.form input')];
 const calculateButton = formCounter.querySelector('.form__submit-button');
 const resetButton = formCounter.querySelector('.form__reset-button');
 const switcher = formCounter.querySelector('.switcher');
-
-const genderRadios = switcher.querySelectorAll('.switcher__item');
 const maleRadio = switcher.querySelector('#gender-male');
 
 const ageInput = formPrameters.querySelector('#age');
@@ -23,11 +21,11 @@ const weightInput = formPrameters.querySelector('#weight');
 const exerciseRadios = document.querySelectorAll('.radio__wrapper > input');
 const exerciseMin = document.querySelector('#activity-minimal');
 
-const counterResultModal = document.querySelector('.counter__result');
-const counterResultList = counterResultModal.querySelector('.counter__result-list');
-const caloriesNorm = counterResultList.querySelector('#calories-norm');
-const caloriesMin = counterResultList.querySelector('#calories-minimal');
-const caloriesMax = counterResultList.querySelector('#calories-maximal');
+const counterModal = document.querySelector('.counter__result');
+const countertList = counterModal.querySelector('.counter__result-list');
+const caloriesNorm = countertList.querySelector('#calories-norm');
+const caloriesMin = countertList.querySelector('#calories-minimal');
+const caloriesMax = countertList.querySelector('#calories-maximal');
 
 let currentFactors = ActivityFactors.MIN;
 
@@ -45,7 +43,7 @@ getValueInputsFilled();
 const onDisableButton = () => {
   calculateButton.setAttribute('disabled', '');
   resetButton.setAttribute('disabled', '');
-  counterResultModal.classList.add('counter__result--hidden');
+  counterModal.classList.add('counter__result--hidden');
 }
 
 const isAllInputsFilled = () => formInputFields.every((input) => input.value.trim() !== '');
@@ -84,37 +82,32 @@ const setResultNorm = (currentFactors) => {
     }
 
     const normCalories = maintainingWeightFormula * currentFactors;
-    const minCalories = normCalories - ((normCalories * 1.5) / 100);
-    const maxCalories = normCalories + ((normCalories * 1.5) / 100);
+    const minCalories = normCalories * 0.85;
+    const maxCalories = normCalories * 1.15;
 
-    caloriesNorm.textContent = normCalories.toFixed(2);
-    caloriesMin.textContent = minCalories.toFixed(2);
-    caloriesMax.textContent = maxCalories.toFixed(2);
+    caloriesNorm.textContent = Math.ceil(normCalories);
+    caloriesMin.textContent = Math.round(minCalories);
+    caloriesMax.textContent = Math.round(maxCalories);
   }
 }
 
 const onCalculateClick = (evt) => {
   evt.preventDefault();
-  const isContains = counterResultModal.classList.contains('counter__result--hidden');
+  const isContains = counterModal.classList.contains('counter__result--hidden');
   if (isContains) {
-    counterResultModal.classList.remove('counter__result--hidden');
+    counterModal.classList.remove('counter__result--hidden');
     setResultNorm(currentFactors);
   } else {
     setResultNorm(currentFactors);
   }
 }
 
-const resetFields = () => {
+const onResetClick = () => {
   isFieldReset();
   onDisableButton();
   exerciseMin.checked = true;
-}
-
-const onResetClick = () => {
-  resetFields();
   maleRadio.checked = true;
 }
 
-genderRadios.forEach((item) => item.addEventListener('click', () => resetFields()));
 resetButton.addEventListener('click', onResetClick);
 calculateButton.addEventListener('click', onCalculateClick);
