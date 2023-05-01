@@ -23,9 +23,11 @@ const exerciseMin = document.querySelector('#activity-minimal');
 
 const counterModal = document.querySelector('.counter__result');
 const countertList = counterModal.querySelector('.counter__result-list');
-const caloriesNorm = countertList.querySelector('#calories-norm');
+/*const caloriesNorm = countertList.querySelector('#calories-norm');
 const caloriesMin = countertList.querySelector('#calories-minimal');
-const caloriesMax = countertList.querySelector('#calories-maximal');
+const caloriesMax = countertList.querySelector('#calories-maximal');*/
+const caloriesNorm = countertList.querySelectorAll('span[id^="calories-"]');
+
 
 let currentFactors = ActivityFactors.MIN;
 
@@ -49,6 +51,8 @@ const onDisableButton = () => {
 const isAllInputsFilled = () => formInputFields.every((input) => input.value.trim() !== '');
 const isOneInputsFilled = () => formInputFields.some((input) => input.value.trim() !== '');
 const isFieldReset = () => formInputFields.forEach((input) => input.value = '');
+const formatNumber = (number) => number.toString().replace(/^(\d{1})(\d+)/, '$1 $2');
+
 
 const getGeneralFormula = () => {
   const result = ((10 * weightInput.value) + (6.25 * heightInput.value) - (5 * ageInput.value));
@@ -81,13 +85,17 @@ const setResultNorm = (currentFactors) => {
       throw new Error("Данные некорректны");
     }
 
-    const normCalories = maintainingWeightFormula * currentFactors;
-    const minCalories = normCalories * 0.85;
-    const maxCalories = normCalories * 1.15;
+    const normCalories = Math.round(maintainingWeightFormula * currentFactors);
+    const minCalories = Math.round(normCalories * 0.85);
+    const maxCalories = Math.round(normCalories * 1.15);
 
-    caloriesNorm.textContent = Math.ceil(normCalories);
-    caloriesMin.textContent = Math.round(minCalories);
-    caloriesMax.textContent = Math.round(maxCalories);
+    const normCaloriesFormatted = formatNumber(normCalories);
+    const minCaloriesFormatted = formatNumber(minCalories);
+    const maxCaloriesFormatted = formatNumber(maxCalories);
+
+    caloriesNorm[0].textContent = normCaloriesFormatted;
+    caloriesNorm[1].textContent = minCaloriesFormatted;
+    caloriesNorm[2].textContent = maxCaloriesFormatted;
   }
 }
 
