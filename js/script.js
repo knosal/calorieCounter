@@ -23,9 +23,6 @@ const exerciseMin = document.querySelector('#activity-minimal');
 
 const counterModal = document.querySelector('.counter__result');
 const countertList = counterModal.querySelector('.counter__result-list');
-/*const caloriesNorm = countertList.querySelector('#calories-norm');
-const caloriesMin = countertList.querySelector('#calories-minimal');
-const caloriesMax = countertList.querySelector('#calories-maximal');*/
 const caloriesNorm = countertList.querySelectorAll('span[id^="calories-"]');
 
 
