@@ -1,9 +1,29 @@
-const ActivityFactors = {
+const LEAD_ZERO = /^0+/;
+const NOT_NUMBERS = /[^\d]/g;
+const CHARACTER_SPACE = /^(\d{1})(\d{3})$/;
+
+const ActivityFactorsRatio = {
   MIN: 1.2,
   LOW: 1.375,
   MEDIUM: 1.55,
   HIGH: 1.725,
   MAX: 1.9
+};
+
+const CaloriesFormulaFactor = {
+  AGE: 5,
+  WEIGHT: 10,
+  HEIGHT: 6.25,
+};
+
+const CaloriesFormulaConstant = {
+  MALE: -5,
+  FEMALE: 161
+};
+
+const CaloriesMinMaxRatio = {
+  MIN: 0.85,
+  MAX: 1.15
 };
 
 const formCounter = document.querySelector('.counter__form');
@@ -14,9 +34,7 @@ const resetButton = formCounter.querySelector('.form__reset-button');
 const switcher = formCounter.querySelector('.switcher');
 const maleRadio = switcher.querySelector('#gender-male');
 
-const ageInput = formPrameters.querySelector('#age');
-const heightInput = formPrameters.querySelector('#height');
-const weightInput = formPrameters.querySelector('#weight');
+const bodyMeasurementsInputs = document.querySelectorAll('.input__wrapper > input');
 
 const exerciseRadios = document.querySelectorAll('.radio__wrapper > input');
 const exerciseMin = document.querySelector('#activity-minimal');
@@ -26,7 +44,7 @@ const countertList = counterModal.querySelector('.counter__result-list');
 const caloriesNorm = countertList.querySelectorAll('span[id^="calories-"]');
 
 
-let currentFactors = ActivityFactors.MIN;
+let currentFactors = ActivityFactorsRatio.MIN;
 
 const getValueInputsFilled = () => {
   formInputFields.forEach((input) => {
@@ -48,11 +66,21 @@ const onDisableButton = () => {
 const isAllInputsFilled = () => formInputFields.every((input) => input.value.trim() !== '');
 const isOneInputsFilled = () => formInputFields.some((input) => input.value.trim() !== '');
 const isFieldReset = () => formInputFields.forEach((input) => input.value = '');
-const formatNumber = (number) => number.toString().replace(/^(\d{1})(\d+)/, '$1 $2');
-
+const formatNumber = (number) => number.toString().replace(CHARACTER_SPACE, '$1 $2');
+const formatInput = (input) => input.value.replace(NOT_NUMBERS, '').replace(LEAD_ZERO, '');
 
 const getGeneralFormula = () => {
-  const result = ((10 * weightInput.value) + (6.25 * heightInput.value) - (5 * ageInput.value));
+  const { WEIGHT, HEIGHT, AGE } = CaloriesFormulaFactor;
+
+  let formattedInputs = [];
+  bodyMeasurementsInputs.forEach((input) => {
+    const formattedInput = formatInput(input);
+    formattedInputs.push(formattedInput);
+  });
+
+  const [formattedWeight, formattedHeight, formattedAge] = formattedInputs;
+
+  const result = ((WEIGHT * formattedWeight) + (HEIGHT * formattedHeight) - (AGE * formattedAge));
   return result;
 }
 
@@ -61,14 +89,13 @@ const getMaintainingFormula = (value) => {
   return resultGeneralMaintainingWeight + value;
 }
 
-const getManFormula = () => getMaintainingFormula(5);
-const getWomanFormula = () => getMaintainingFormula(-161);
-
+const getManFormula = () => getMaintainingFormula(CaloriesFormulaConstant.MALE);
+const getWomanFormula = () => getMaintainingFormula(CaloriesFormulaConstant.FEMALE);
 
 const getCurrentFactors = () => {
   exerciseRadios.forEach((radioButton) => {
     radioButton.addEventListener('click', () => {
-      currentFactors = ActivityFactors[radioButton.value.toUpperCase()];
+      currentFactors = ActivityFactorsRatio[radioButton.value.toUpperCase()];
     });
   });
 }
@@ -83,16 +110,17 @@ const setResultNorm = (currentFactors) => {
     }
 
     const normCalories = Math.round(maintainingWeightFormula * currentFactors);
-    const minCalories = Math.round(normCalories * 0.85);
-    const maxCalories = Math.round(normCalories * 1.15);
+    const minCalories = Math.round(normCalories * CaloriesMinMaxRatio.MIN);
+    const maxCalories = Math.round(normCalories * CaloriesMinMaxRatio.MAX);
 
-    const normCaloriesFormatted = formatNumber(normCalories);
-    const minCaloriesFormatted = formatNumber(minCalories);
-    const maxCaloriesFormatted = formatNumber(maxCalories);
+    const formatAndSetCalories = (element, calories) => {
+      const formattedCalories = formatNumber(calories);
+      element.textContent = formattedCalories;
+    }
 
-    caloriesNorm[0].textContent = normCaloriesFormatted;
-    caloriesNorm[1].textContent = minCaloriesFormatted;
-    caloriesNorm[2].textContent = maxCaloriesFormatted;
+    formatAndSetCalories(caloriesNorm[0], normCalories);
+    formatAndSetCalories(caloriesNorm[1], minCalories);
+    formatAndSetCalories(caloriesNorm[2], maxCalories);
   }
 }
 
